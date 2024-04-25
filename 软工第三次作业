@@ -1,0 +1,184 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include<stdio.h>
+#include <stdlib.h>
+#define MAX 2000
+struct Task_struct
+{
+	int id;   
+	int Time;     
+	int st;   
+	int wt;  
+	int stt;  
+	int end_time;    
+	char a[1000];    
+	int time[1000]; 
+	int priority;
+	int num;    
+}T[MAX];
+
+struct Struct {
+	int id;
+	char a;
+	int time;
+	int priority;
+}Info[10000];          
+double EE = 0;
+double APT = 0;  
+int Sum = 0;   
+int KN = 1;     
+int FN = 0;  
+int SF[MAX];        
+double AT = 0;  
+double AWT = 0;  
+
+int Read() {
+	FILE* fp;
+	if ((fp = fopen("C:/Users/15325/Desktop/操作系统课设/LOG.TXT", "r")) == NULL) {
+		printf("打开文件错误");
+		system("pause");
+		return 1;
+	}
+	int p = 0;
+	for (p = 0; fscanf(fp, "%d\t%c\t%d\t%d\n", &Info[p].id, &Info[p].a, &Info[p].time, &Info[p].priority) != EOF; p++) {
+
+	}
+	Sum = p;
+	fclose(fp);
+	return 0;
+}
+
+
+void Search() {
+	int q = 0;
+	for (int i = 0; i < KN; i++) {
+		for (int j = 0; j < T[i].num; j++) {
+			if (T[i].a[j] == 'E') {
+				FN++;
+				SF[q] = i;
+				q++;
+				break;
+			}
+		}
+	}
+}
+
+int Time() {
+	int j = 0;   
+	int flag = 0;
+	for (int i = 0; i < Sum; i++) {
+		if (i == 0) {         
+			T[0].num = 1;
+			T[0].id = Info[i].id;
+			T[0].a[T[0].num - 1] = Info[i].a;
+			T[0].time[T[0].num - 1] = Info[i].time;
+			T[0].priority = Info[i].priority;
+			j++; continue;
+		}
+		for (int l = j; l > 0; l--) {
+			if (Info[i].id == T[l - 1].id) {
+				T[l - 1].a[T[l - 1].num] = Info[i].a;
+				T[l - 1].time[T[l - 1].num] = Info[i].time;
+				T[l - 1].num++;
+				flag = 1;
+				break;
+			}
+		}
+		if (flag == 1) {
+			flag = 0;
+			continue;
+		}
+		T[j].num = 1;
+		T[j].id = Info[i].id;
+		T[j].a[0] = Info[i].a;
+		T[j].time[0] = Info[i].time;
+		T[j].priority = Info[i].priority;
+		j++;
+	}
+	KN = j;
+	Search();
+	int R_Time, WE_Time;
+	int J_Time = 0;
+	int Flag1 = 0;
+	for (int i = 0; i < FN; i++) {
+		for (j = 0; j < T[SF[i]].num; j++) {
+			if (T[SF[i]].a[j] == 'N') T[SF[i]].stt = T[SF[i]].time[j];
+			if (T[SF[i]].a[j] == 'E') T[SF[i]].end_time = T[SF[i]].time[j];
+		}
+		T[SF[i]].Time = T[SF[i]].end_time - T[SF[i]].stt; 
+		for (j = 0; j < T[SF[i]].num; j++) {
+			if (T[SF[i]].a[j] == 'R') {
+				R_Time = T[SF[i]].time[j];
+				Flag1 = 1;
+			}
+			if (Flag1 == 0)continue;
+			if (T[SF[i]].a[j] == 'J') {
+				J_Time = T[SF[i]].time[j];
+				T[SF[i]].st += (J_Time - R_Time);
+				Flag1 = 0;
+				continue;
+			}
+			if (T[SF[i]].a[j] == 'W') {
+				WE_Time = T[SF[i]].time[j];
+				T[SF[i]].st += (WE_Time - R_Time);
+				Flag1 = 0;
+			}
+			if (T[SF[i]].a[j] == 'E') {
+				WE_Time = T[SF[i]].time[j];
+				T[SF[i]].st += (WE_Time - R_Time);
+				Flag1 = 0;
+			}
+		}
+		T[SF[i]].wt = T[SF[i]].Time - T[SF[i]].st;
+	}
+	for (int i = 0; i < FN; i++) {
+		AT += T[SF[i]].Time;
+		AWT += T[SF[i]].wt;
+	}
+	AT = (double)AT / FN;
+	AWT = (double)AWT / FN;
+	int min = 0, t;
+	min = T[SF[0]].end_time;
+	for (int i = 0; i < FN; i++) {
+		if (min < T[SF[i]].end_time) {
+			min = T[SF[i]].end_time;
+		}
+	}
+	t = (min - T[SF[0]].stt);
+	EE = (double)FN / t;
+	return 0;
+}
+int Write()
+{
+	FILE* fp1;
+	if ((fp1 = fopen("C:/Users/15325/Desktop/操作系统课设/out.txt", "w")) == NULL) {
+		printf("打开文件‘out4.txt’失败");
+		system("pause");
+		return 0;
+	}
+	double PowerTime = 0;            
+	for (int i = 0; i < FN; i++) {
+		fprintf(fp1, "进程id：%d\t", T[SF[i]].id); fflush(fp1);
+		fprintf(fp1, "周转时间：%d\t", T[SF[i]].Time); fflush(fp1);
+		PowerTime = (double)T[SF[i]].Time / T[SF[i]].st; fflush(fp1);
+		APT += PowerTime;
+		fprintf(fp1, "带权周转时间：%lf\t", PowerTime); fflush(fp1);
+		fprintf(fp1, "等待时间：%d\n", T[SF[i]].wt); fflush(fp1);
+	}
+	APT = (double)APT / FN;
+	fprintf(fp1, "\n********************************\n"); fflush(fp1);
+	fprintf(fp1, "平均周转时间： %lf\n", AT); fflush(fp1);      
+	fprintf(fp1, "平均带权周转时间： %lf\n", APT); fflush(fp1);
+	fprintf(fp1, "平均等待时间： %lf\n", AWT); fflush(fp1);
+	fprintf(fp1, "吞吐率： %lf\n", EE); fflush(fp1);
+	
+	fclose(fp1);
+	return 0;
+}
+void main()
+{
+	Read();
+	Time();
+	Write();
+	printf("处理完成");
+	system("pause");
+}
