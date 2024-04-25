@@ -1,0 +1,90 @@
+//Divide 函数
+// divide.h
+#ifndef DIVIDE_H
+#define DIVIDE_H
+
+#include <stdexcept>
+
+int divide(int numerator, int denominator);
+
+#endif  // DIVIDE_H
+// divide.cpp
+#include "divide.h"
+
+int divide(int numerator, int denominator) {
+    if (denominator == 0) {
+        throw std::invalid_argument("除数不能为0");
+    }
+    return numerator / denominator;
+}
+
+//代码示例
+// test_divide.cpp
+#include "gtest/gtest.h"
+#include "divide.h"
+
+// 测试除法函数 divide
+TEST(DivideTest, PositiveNumbers) {
+    EXPECT_EQ(divide(10, 2), 5);
+}
+
+TEST(DivideTest, AnotherPositiveNumbers) {
+    EXPECT_EQ(divide(8, 4), 2);
+}
+
+TEST(DivideTest, ZeroNumerator) {
+    EXPECT_EQ(divide(0, 5), 0);
+}
+
+TEST(DivideTest, NegativeNumbers) {
+    EXPECT_EQ(divide(-10, 2), -5);
+}
+
+TEST(DivideTest, DivideByZero) {
+    EXPECT_THROW(divide(5, 0), std::invalid_argument);
+}
+
+//主程序
+// main.cpp
+#include "gtest/gtest.h"
+
+int main(int argc, char **argv) {
+    ::testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
+}
+//构建和运行测试
+# CMakeLists.txt
+cmake_minimum_required(VERSION 3.10)
+project(MyProject)
+
+# Google Test
+add_subdirectory(path/to/googletest)
+
+# 添加测试可执行文件
+add_executable(runTests main.cpp test_divide.cpp divide.cpp)
+
+# 链接 Google Test
+target_link_libraries(runTests gtest gtest_main)
+
+# 添加测试
+enable_testing()
+add_test(NAME DivideTest COMMAND runTests)
+//实际结果
+[==========] Running 5 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 5 tests from DivideTest
+[ RUN      ] DivideTest.PositiveNumbers
+[       OK ] DivideTest.PositiveNumbers (0 ms)
+[ RUN      ] DivideTest.AnotherPositiveNumbers
+[       OK ] DivideTest.AnotherPositiveNumbers (0 ms)
+[ RUN      ] DivideTest.ZeroNumerator
+[       OK ] DivideTest.ZeroNumerator (0 ms)
+[ RUN      ] DivideTest.NegativeNumbers
+[       OK ] DivideTest.NegativeNumbers (0 ms)
+[ RUN      ] DivideTest.DivideByZero
+[       OK ] DivideTest.DivideByZero (0 ms)
+[----------] 5 tests from DivideTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 5 tests.
